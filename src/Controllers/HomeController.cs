@@ -1,6 +1,11 @@
+using library_volunteering_enquiry_service.Models;
+using library_volunteering_enquiry_service.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using StockportGovUK.AspNetCore.Attributes.TokenAuthentication;
-using StockportGovUK.AspNetCore.Availability.Managers;
+using System;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace library_volunteering_enquiry_service.Controllers
 {
@@ -10,11 +15,13 @@ namespace library_volunteering_enquiry_service.Controllers
     [TokenAuthentication]
     public class HomeController : ControllerBase
     {
-        private IAvailabilityManager _availabilityManager;
-        
-        public HomeController(IAvailabilityManager availabilityManager)
+        private readonly ILogger<HomeController> _logger;
+        private readonly ILibraryVolunteeringEnquiryService _libraryVolunteeringEnquiryService;
+
+        public HomeController(ILogger<HomeController> logger, ILibraryVolunteeringEnquiryService libraryVolunteeringEnquiryService)
         {
-            _availabilityManager = availabilityManager;
+            _logger = logger;
+            _libraryVolunteeringEnquiryService = libraryVolunteeringEnquiryService;
         }
 
         [HttpGet]
@@ -24,9 +31,21 @@ namespace library_volunteering_enquiry_service.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post()
+        public async Task<IActionResult> Post([FromBody] LibraryVolunteeringEnquiry libraryVolunteeringEnquiry)
         {
-            return Ok();
+            _logger.LogDebug(JsonSerializer.Serialize(libraryVolunteeringEnquiry));
+
+            try
+            {
+                var result = await _libraryVolunteeringEnquiryService.CreateCase(libraryVolunteeringEnquiry);
+                _logger.LogWarning($"Case result: { result }");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"Case an exception has occurred while calling CreateCase, ex: {ex}");
+                return StatusCode(500, ex);
+            }
         }
     }
 }

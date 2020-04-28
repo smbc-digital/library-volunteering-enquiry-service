@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using library_volunteering_enquiry_service.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
@@ -6,6 +7,10 @@ namespace library_volunteering_enquiry_service.Utils.ServiceCollectionExtensions
 {
     public static class ServiceCollectionExtensions
     {
+        public static void RegisterServices(this IServiceCollection services)
+        {
+            services.AddTransient<ILibraryVolunteeringEnquiryService, LibraryVolunteeringEnquiryService>();
+        }
         public static void AddSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(c =>

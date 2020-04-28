@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StockportGovUK.AspNetCore.Middleware;
 using StockportGovUK.AspNetCore.Availability;
-using StockportGovUK.AspNetCore.Availability.Middleware;
 using StockportGovUK.NetStandard.Gateways;
 
 namespace library_volunteering_enquiry_service
@@ -29,6 +28,7 @@ namespace library_volunteering_enquiry_service
             services.AddControllers();
             services.AddStorageProvider(Configuration);
             services.AddResilientHttpClients<IGateway, Gateway>(Configuration);
+            services.RegisterServices();
             services.AddAvailability();
             services.AddSwagger();
             services.AddHealthChecks()
@@ -50,7 +50,6 @@ namespace library_volunteering_enquiry_service
             app.UseRouting();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
 
-            app.UseMiddleware<Availability>();
             app.UseMiddleware<ApiExceptionHandling>();
             
             app.UseHealthChecks("/healthcheck", HealthCheckConfig.Options);
@@ -58,7 +57,7 @@ namespace library_volunteering_enquiry_service
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint($"{(env.IsEnvironment("local") ? string.Empty : "/")}/swagger/v1/swagger.json", "library_volunteering_enquiry_service API");
+                c.SwaggerEndpoint($"{(env.IsEnvironment("local") ? string.Empty : "libraryvolunteeringenquiryservice")}/swagger/v1/swagger.json", "library_volunteering_enquiry_service API");
             });
         }
     }
