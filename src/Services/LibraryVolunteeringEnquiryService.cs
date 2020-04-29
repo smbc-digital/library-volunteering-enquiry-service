@@ -1,7 +1,10 @@
 ﻿using library_volunteering_enquiry_service.Models;
+using Newtonsoft.Json;
 using StockportGovUK.NetStandard.Gateways.VerintServiceGateway;
 using StockportGovUK.NetStandard.Models.Verint;
 using System;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace library_volunteering_enquiry_service.Services
@@ -89,6 +92,12 @@ namespace library_volunteering_enquiry_service.Services
 
             try
             {
+                //var serializedContent = JsonConvert.SerializeObject(crmCase, Formatting.Indented, new JsonSerializerSettings
+                //    {
+                //    NullValueHandling = NullValueHandling.Ignore
+                //    });
+
+                //var content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
                 var response = await _VerintServiceGateway.CreateCase(crmCase);
                 return response.ResponseContent;
             }
