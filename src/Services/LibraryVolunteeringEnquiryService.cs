@@ -20,7 +20,7 @@ namespace library_volunteering_enquiry_service.Services
 
             if (libraryVolunteeringEnquiry.InterestList.Count > 0)
             {
-                description += "Selected Interests: ";
+                description += "\nSelected Interests: ";
                 foreach (var interest in libraryVolunteeringEnquiry.InterestList)
                 {
                     description += $"{interest}, ";
@@ -29,7 +29,7 @@ namespace library_volunteering_enquiry_service.Services
 
             if (libraryVolunteeringEnquiry.PreferredLocationList.Count > 0)
             {
-                description += "Selected Locations: ";
+                description += "\nSelected Locations: ";
                 foreach (var location in libraryVolunteeringEnquiry.PreferredLocationList)
                 {
                     description += $"{location}, ";
@@ -41,7 +41,7 @@ namespace library_volunteering_enquiry_service.Services
 
             if (libraryVolunteeringEnquiry.NotAvailableList.Count > 0)
             {
-                description += "Days can't work: ";
+                description += "\nDays can't work: ";
                 foreach (var notAvailable in libraryVolunteeringEnquiry.NotAvailableList)
                 {
                     description += $"{notAvailable}, ";
