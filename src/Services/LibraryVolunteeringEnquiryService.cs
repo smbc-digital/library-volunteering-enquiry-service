@@ -1,10 +1,7 @@
 ﻿using library_volunteering_enquiry_service.Models;
-using Newtonsoft.Json;
 using StockportGovUK.NetStandard.Gateways.VerintServiceGateway;
 using StockportGovUK.NetStandard.Models.Verint;
 using System;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace library_volunteering_enquiry_service.Services
@@ -19,35 +16,24 @@ namespace library_volunteering_enquiry_service.Services
         }
         public async Task<string> CreateCase(LibraryVolunteeringEnquiry libraryVolunteeringEnquiry)
         {
-            
-            var description = $@"FirstName: {libraryVolunteeringEnquiry.FirstName}
-                                LastName: { libraryVolunteeringEnquiry.LastName}
-                                Email: {libraryVolunteeringEnquiry.Email}
-                                Phone: {libraryVolunteeringEnquiry.Phone}
-                                HowManyHours: {libraryVolunteeringEnquiry.NumberOfHours}
-                                AdditionalInformation: {libraryVolunteeringEnquiry.AdditionalInfo}";
+            var description = string.Empty;
 
             if (libraryVolunteeringEnquiry.InterestList.Count > 0)
             {
-                description += $@"CheckBoxSelectInterests: {libraryVolunteeringEnquiry.InterestList[0]}
+                 description = $@"CheckBoxSelectInterests: {libraryVolunteeringEnquiry.InterestList[0]}
                                 CheckBoxPreferredLocation: {libraryVolunteeringEnquiry.PreferredLocationList[0]}
                                 CheckBoxDaysNotAvailable: {libraryVolunteeringEnquiry.NotAvailableList[0]}
                                 ";
             }
 
-            if (libraryVolunteeringEnquiry.CustomersAddress != null)
-            {
-                description += $@"AddressLine1: {libraryVolunteeringEnquiry.CustomersAddress.AddressLine1}
-                                AddressLine2: {libraryVolunteeringEnquiry.CustomersAddress.AddressLine2}
-                                Town: {libraryVolunteeringEnquiry.CustomersAddress.Town}
-                                Postcode: {libraryVolunteeringEnquiry.CustomersAddress.Postcode}
-                                SelectedAddress: {libraryVolunteeringEnquiry.CustomersAddress.SelectedAddress}";
-            }
+            description += $@"HowManyHours: {libraryVolunteeringEnquiry.NumberOfHours}
+                           AdditionalInformation: {libraryVolunteeringEnquiry.AdditionalInfo}
+                           ";
 
             var crmCase = new Case
             {
                 EventCode = 4000031,
-                EventTitle = "Basic Verint Case",
+                EventTitle = "Volunteering",
                 Description = description,
                 AssociatedWithBehaviour = AssociatedWithBehaviourEnum.Individual
             };
@@ -92,12 +78,6 @@ namespace library_volunteering_enquiry_service.Services
 
             try
             {
-                //var serializedContent = JsonConvert.SerializeObject(crmCase, Formatting.Indented, new JsonSerializerSettings
-                //    {
-                //    NullValueHandling = NullValueHandling.Ignore
-                //    });
-
-                //var content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
                 var response = await _VerintServiceGateway.CreateCase(crmCase);
                 return response.ResponseContent;
             }
