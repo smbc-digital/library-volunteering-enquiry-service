@@ -20,34 +20,37 @@ namespace library_volunteering_enquiry_service.Services
 
             if (libraryVolunteeringEnquiry.InterestList.Count > 0)
             {
-                description += "\nSelected Interests: ";
+                description += "Selected Interests: ";
                 foreach (var interest in libraryVolunteeringEnquiry.InterestList)
                 {
                     description += $"{interest}, ";
                 }
+                description += "\n";
             }
 
             if (libraryVolunteeringEnquiry.PreferredLocationList.Count > 0)
             {
-                description += "\nSelected Locations: ";
+                description += "Selected Locations: ";
                 foreach (var location in libraryVolunteeringEnquiry.PreferredLocationList)
                 {
                     description += $"{location}, ";
                 }
+                description += "\n";
             }
 
-            description += $"\nHours: {libraryVolunteeringEnquiry.NumberOfHours}";
+            description += $"Hours: {libraryVolunteeringEnquiry.NumberOfHours}\n";
 
             if (libraryVolunteeringEnquiry.NotAvailableList.Count > 0)
             {
-                description += "\nDays can't work: ";
+                description += "Days can't work: ";
                 foreach (var notAvailable in libraryVolunteeringEnquiry.NotAvailableList)
                 {
                     description += $"{notAvailable}, ";
                 }
+                description += "\n";
             }
 
-            description += $"\nAdditionalInformation: {libraryVolunteeringEnquiry.AdditionalInfo}";
+            description += $"AdditionalInformation: {libraryVolunteeringEnquiry.AdditionalInfo}";
 
             var crmCase = new Case
             {
