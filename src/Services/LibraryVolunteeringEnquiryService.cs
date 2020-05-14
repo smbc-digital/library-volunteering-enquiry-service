@@ -20,14 +20,35 @@ namespace library_volunteering_enquiry_service.Services
 
             if (libraryVolunteeringEnquiry.InterestList.Count > 0)
             {
-                 description = $@"CheckBoxSelectInterests: {libraryVolunteeringEnquiry.InterestList[0]}
-                                CheckBoxPreferredLocation: {libraryVolunteeringEnquiry.PreferredLocationList[0]}
-                                CheckBoxDaysNotAvailable: {libraryVolunteeringEnquiry.NotAvailableList[0]}
-                                ";
+                description += "Selected Interests: ";
+                foreach (var interest in libraryVolunteeringEnquiry.InterestList)
+                {
+                    description += $"{interest}, ";
+                }
+            }
+
+            if (libraryVolunteeringEnquiry.PreferredLocationList.Count > 0)
+            {
+                description += "Selected Locations: ";
+                foreach (var location in libraryVolunteeringEnquiry.PreferredLocationList)
+                {
+                    description += $"{location}, ";
+                }
             }
 
             description += $@"HowManyHours: {libraryVolunteeringEnquiry.NumberOfHours}
-                           AdditionalInformation: {libraryVolunteeringEnquiry.AdditionalInfo}
+                            ";
+
+            if (libraryVolunteeringEnquiry.NotAvailableList.Count > 0)
+            {
+                description += "Days can't work: ";
+                foreach (var notAvailable in libraryVolunteeringEnquiry.NotAvailableList)
+                {
+                    description += $"{notAvailable}, ";
+                }
+            }
+
+            description += $@"AdditionalInformation: {libraryVolunteeringEnquiry.AdditionalInfo}
                            ";
 
             var crmCase = new Case
