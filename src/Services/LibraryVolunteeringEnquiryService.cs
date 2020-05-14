@@ -50,7 +50,7 @@ namespace library_volunteering_enquiry_service.Services
                 description += "\n";
             }
 
-            description += $"AdditionalInformation: {libraryVolunteeringEnquiry.AdditionalInfo}";
+            description += $"Extra Information: {libraryVolunteeringEnquiry.AdditionalInfo}";
 
             var crmCase = new Case
             {
