@@ -36,8 +36,7 @@ namespace library_volunteering_enquiry_service.Services
                 }
             }
 
-            description += $@"HowManyHours: {libraryVolunteeringEnquiry.NumberOfHours}
-                            ";
+            description += $"\nHours: {libraryVolunteeringEnquiry.NumberOfHours}";
 
             if (libraryVolunteeringEnquiry.NotAvailableList.Count > 0)
             {
@@ -48,8 +47,7 @@ namespace library_volunteering_enquiry_service.Services
                 }
             }
 
-            description += $@"AdditionalInformation: {libraryVolunteeringEnquiry.AdditionalInfo}
-                           ";
+            description += $"\nAdditionalInformation: {libraryVolunteeringEnquiry.AdditionalInfo}";
 
             var crmCase = new Case
             {
