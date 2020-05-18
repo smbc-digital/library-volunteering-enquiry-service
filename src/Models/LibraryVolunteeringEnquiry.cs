@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using StockportGovUK.NetStandard.Models.Addresses;
 
 namespace library_volunteering_enquiry_service.Models
 {
@@ -13,6 +14,6 @@ namespace library_volunteering_enquiry_service.Models
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
-        public StockportGovUK.NetStandard.Models.Addresses.Address CustomersAddress { get; set; }
+        public Address CustomersAddress { get; set; }
     }
 }
