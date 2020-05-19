@@ -1,9 +1,9 @@
-﻿using library_volunteering_enquiry_service.Models;
-using StockportGovUK.NetStandard.Gateways.VerintServiceGateway;
-using StockportGovUK.NetStandard.Models.Verint;
-using System;
+﻿using System;
 using System.Text;
 using System.Threading.Tasks;
+using library_volunteering_enquiry_service.Models;
+using StockportGovUK.NetStandard.Gateways.VerintServiceGateway;
+using StockportGovUK.NetStandard.Models.Verint;
 
 namespace library_volunteering_enquiry_service.Services
 {
@@ -22,6 +22,12 @@ namespace library_volunteering_enquiry_service.Services
             try
             {
                 var response = await _VerintServiceGateway.CreateCase(crmCase);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Status code not successful");
+                }
+
                 return response.ResponseContent;
             }
             catch (Exception ex)
