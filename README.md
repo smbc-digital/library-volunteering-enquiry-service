@@ -52,7 +52,7 @@
 ## Installation
 ```console
 $ git clone git@github.com:smbc-digital/library-volunteering-enquiry-service.git
-$ cd revs-bens-service/src
+$ cd library-volunteering-enquiry-service/src
 $ git-crypt unlock
 $ dotnet run
 ```
