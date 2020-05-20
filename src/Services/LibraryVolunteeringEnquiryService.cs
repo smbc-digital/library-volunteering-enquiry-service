@@ -1,8 +1,9 @@
-﻿using library_volunteering_enquiry_service.Models;
+﻿using System;
+using System.Text;
+using System.Threading.Tasks;
+using library_volunteering_enquiry_service.Models;
 using StockportGovUK.NetStandard.Gateways.VerintServiceGateway;
 using StockportGovUK.NetStandard.Models.Verint;
-using System;
-using System.Threading.Tasks;
 
 namespace library_volunteering_enquiry_service.Services
 {
@@ -16,47 +17,32 @@ namespace library_volunteering_enquiry_service.Services
         }
         public async Task<string> CreateCase(LibraryVolunteeringEnquiry libraryVolunteeringEnquiry)
         {
-            var description = string.Empty;
+            var crmCase = CreateCrmObject(libraryVolunteeringEnquiry);
 
-            if (libraryVolunteeringEnquiry.InterestList.Count > 0)
+            try
             {
-                description += "Selected Interests: ";
-                foreach (var interest in libraryVolunteeringEnquiry.InterestList)
-                {
-                    description += $"{interest}, ";
-                }
-                description += "\n";
-            }
+                var response = await _VerintServiceGateway.CreateCase(crmCase);
 
-            if (libraryVolunteeringEnquiry.PreferredLocationList.Count > 0)
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Status code not successful");
+                }
+
+                return response.ResponseContent;
+            }
+            catch (Exception ex)
             {
-                description += "Selected Locations: ";
-                foreach (var location in libraryVolunteeringEnquiry.PreferredLocationList)
-                {
-                    description += $"{location}, ";
-                }
-                description += "\n";
+                throw new Exception($"CRMService CreateLibraryVolunteeringEnquiry an exception has occured while creating the case in verint service", ex);
             }
+        }
 
-            description += $"Hours: {libraryVolunteeringEnquiry.NumberOfHours}\n";
-
-            if (libraryVolunteeringEnquiry.NotAvailableList.Count > 0)
-            {
-                description += "Days can't work: ";
-                foreach (var notAvailable in libraryVolunteeringEnquiry.NotAvailableList)
-                {
-                    description += $"{notAvailable}, ";
-                }
-                description += "\n";
-            }
-
-            description += $"Extra Information: {libraryVolunteeringEnquiry.AdditionalInfo}";
-
+        private Case CreateCrmObject(LibraryVolunteeringEnquiry libraryVolunteeringEnquiry)
+        {
             var crmCase = new Case
             {
                 EventCode = 4000031,
                 EventTitle = "Volunteering",
-                Description = description,
+                Description = GenerateDescription(libraryVolunteeringEnquiry),
                 AssociatedWithBehaviour = AssociatedWithBehaviourEnum.Individual
             };
 
@@ -97,16 +83,54 @@ namespace library_volunteering_enquiry_service.Services
                     };
                 }
             }
+            return crmCase;
+        }
 
-            try
+        private string GenerateDescription(LibraryVolunteeringEnquiry libraryVolunteeringEnquiry)
+        {
+            StringBuilder description = new StringBuilder();
+
+            if (libraryVolunteeringEnquiry.InterestList.Count > 0)
             {
-                var response = await _VerintServiceGateway.CreateCase(crmCase);
-                return response.ResponseContent;
+                description.Append("Selected Interests: ");
+                foreach (var interest in libraryVolunteeringEnquiry.InterestList)
+                {
+                    description.Append($"{interest}, ");
+                }
+                description.Append("\n");
             }
-            catch (Exception ex)
+
+            if (libraryVolunteeringEnquiry.PreferredLocationList.Count > 0)
             {
-                throw new Exception($"CRMService CreateLibraryVolunteeringEnquiry an exception has occured while creating the case in verint service", ex);
+                description.Append("Selected Locations: ");
+                foreach (var location in libraryVolunteeringEnquiry.PreferredLocationList)
+                {
+                    description.Append($"{location}, ");
+                }
+                description.Append("\n");
             }
+
+            if (!string.IsNullOrEmpty(libraryVolunteeringEnquiry.NumberOfHours))
+            {
+                description.Append($"Hours: {libraryVolunteeringEnquiry.NumberOfHours}\n");
+            }
+
+            if (libraryVolunteeringEnquiry.NotAvailableList.Count > 0)
+            {
+                description.Append("Days can't work: ");
+                foreach (var notAvailable in libraryVolunteeringEnquiry.NotAvailableList)
+                {
+                    description.Append($"{notAvailable}, ");
+                }
+                description.Append("\n");
+            }
+
+            if (!string.IsNullOrEmpty(libraryVolunteeringEnquiry.AdditionalInfo))
+            {
+                description.Append($"Extra Information: {libraryVolunteeringEnquiry.AdditionalInfo}");
+            }
+
+            return description.ToString();
         }
     }
 }

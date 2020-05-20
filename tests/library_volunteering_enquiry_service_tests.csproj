@@ -17,8 +17,4 @@
     <ProjectReference Include="..\src\library_volunteering_enquiry_service.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controller\" />
-  </ItemGroup>
-
 </Project>
