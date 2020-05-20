@@ -1,10 +1,10 @@
-<h1 align="center">Library-volunteering-enquiry-service</h1>
+<h1 align="center">Library Volunteering Enquiry Service</h1>
 
 <div align="center">
-  :smiley: :pound: :blossom:
+  :neckbeard: :books: :office:
 </div>
 <div align="center">
-  Nobody likes council tax, let's make it simple and easy to understand!
+  Everyone loves a good book
 </div>
 
 <br />
@@ -39,12 +39,12 @@
 
 
 ## Table of Contents
-- [Requirments](#requirments)
+- [Requirements](#requirements)
 - [Installation](#installation)
 - [Server Integration](#server_integration)
 
-## Requirments
-- dotnet core 2.2
+## Requirements
+- dotnet core 3.1
 - editor of your choice
 - gpg key added to accepted contributors
 
