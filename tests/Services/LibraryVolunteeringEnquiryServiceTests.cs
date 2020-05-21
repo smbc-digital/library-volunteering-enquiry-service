@@ -20,7 +20,7 @@ namespace library_volunteering_enquiry_service_tests.Services
         {
             InterestList = new List<string> { "Code Clubs", "Duke of Edinburgh" },
             PreferredLocationList = new List<string> { "No preference" },
-            NumberOfHours = "36",
+            NumberOfHours = 36,
             NotAvailableList = new List<string> { "Monday" },
             AdditionalInfo = "",
             FirstName = "Joe",
@@ -138,7 +138,7 @@ namespace library_volunteering_enquiry_service_tests.Services
             Assert.Contains(interestList[0], crmCaseParameter.Description);
             Assert.Contains(interestList[1], crmCaseParameter.Description);
             Assert.Contains(preferredLocationList[0], crmCaseParameter.Description);
-            Assert.Contains(numberOfHours, crmCaseParameter.Description);
+            Assert.Contains(numberOfHours.ToString(), crmCaseParameter.Description);
             Assert.Contains(notAvailableList[0], crmCaseParameter.Description);
             Assert.Contains(additionalInfo, crmCaseParameter.Description);            
         }
