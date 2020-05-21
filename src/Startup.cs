@@ -57,7 +57,7 @@ namespace library_volunteering_enquiry_service
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint($"{(env.IsEnvironment("local") ? string.Empty : "libraryvolunteeringenquiryservice")}/swagger/v1/swagger.json", "library_volunteering_enquiry_service API");
+                c.SwaggerEndpoint("v1/swagger.json", "Library Volunteering Enquiry Service API");
             });
         }
     }
