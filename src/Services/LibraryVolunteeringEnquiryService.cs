@@ -110,7 +110,7 @@ namespace library_volunteering_enquiry_service.Services
                 description.Append("\n");
             }
 
-            if (!string.IsNullOrEmpty(libraryVolunteeringEnquiry.NumberOfHours))
+            if (libraryVolunteeringEnquiry.NumberOfHours > 0)
             {
                 description.Append($"Hours: {libraryVolunteeringEnquiry.NumberOfHours}\n");
             }

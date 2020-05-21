@@ -7,7 +7,7 @@ namespace library_volunteering_enquiry_service.Models
     {
         public List<string> InterestList { get; set; }
         public List<string> PreferredLocationList { get; set; }
-        public string NumberOfHours { get; set; }
+        public int NumberOfHours { get; set; }
         public List<string> NotAvailableList { get; set; }
         public string AdditionalInfo { get; set; }
         public string FirstName { get; set; }
