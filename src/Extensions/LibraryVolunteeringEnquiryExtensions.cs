@@ -11,19 +11,20 @@ namespace library_volunteering_enquiry_service.Extensions
         public static Case MapToCase(this LibraryVolunteeringEnquiry model, int eventCode, string classification)
         {
             var description = new DescriptionBuilder()
-                .Add("Selected Interests: ", model.InterestList, ", ")
-                .Add("Selected Locations: ", model.PreferredLocationList, ", ")
-                .Add("Hours: ", model.NumberOfHours.ToString())
-                .Add("Days can't work: ", model.NotAvailableList, ", ")
-                .Add("Extra Information: ", model.AdditionalInfo)
-                .Build();
+                .Add("Selected Interests", model.InterestList, ", ")
+                .Add("Selected Locations", model.PreferredLocationList, ", ")
+                .Add("Hours", model.NumberOfHours.ToString())
+                .Add("Days can't work", model.NotAvailableList, ", ");
+
+            if (!string.IsNullOrEmpty(model.AdditionalInfo))
+                description.Add("Extra Information", model.AdditionalInfo);
 
             return new Case
             {
                 EventCode = eventCode,
                 Classification = classification,
                 EventTitle = "Volunteering",
-                Description = description,
+                Description = description.Build(),
                 AssociatedWithBehaviour = AssociatedWithBehaviourEnum.Individual,
                 Customer = new Customer
                 {
