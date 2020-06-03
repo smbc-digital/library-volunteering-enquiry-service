@@ -7,13 +7,8 @@ namespace library_volunteering_enquiry_service.Utils.StorageProvider
     {
         Task<string> GetStringAsync(string key);
 
-        Task SetStringAsync(
-            string key,
-            string value);
+        Task SetStringAsync(string key, string value);
 
-        Task SetStringAsync(
-            string key,
-            string value,
-            DistributedCacheEntryOptions options);
+        Task SetStringAsync(string key, string value, DistributedCacheEntryOptions options);
     }
 }

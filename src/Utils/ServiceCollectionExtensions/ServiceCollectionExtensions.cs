@@ -11,6 +11,7 @@ namespace library_volunteering_enquiry_service.Utils.ServiceCollectionExtensions
         {
             services.AddTransient<ILibraryVolunteeringEnquiryService, LibraryVolunteeringEnquiryService>();
         }
+
         public static void AddSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(c =>

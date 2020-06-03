@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using StockportGovUK.AspNetCore.Middleware;
 using StockportGovUK.AspNetCore.Availability;
 using StockportGovUK.NetStandard.Gateways;
+using StockportGovUK.AspNetCore.Availability.Middleware;
 
 namespace library_volunteering_enquiry_service
 {
@@ -50,6 +51,7 @@ namespace library_volunteering_enquiry_service
             app.UseRouting();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
 
+            app.UseMiddleware<Availability>();
             app.UseMiddleware<ApiExceptionHandling>();
             
             app.UseHealthChecks("/healthcheck", HealthCheckConfig.Options);
