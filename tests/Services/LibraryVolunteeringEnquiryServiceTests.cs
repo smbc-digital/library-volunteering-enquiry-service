@@ -10,6 +10,8 @@ using StockportGovUK.NetStandard.Gateways.VerintServiceGateway;
 using StockportGovUK.NetStandard.Models.Verint;
 using Xunit;
 using StockportGovUK.NetStandard.Models.Mail;
+using library_volunteering_enquiry_service.Config;
+using Microsoft.Extensions.Options;
 
 namespace library_volunteering_enquiry_service_tests.Services
 {
@@ -17,6 +19,7 @@ namespace library_volunteering_enquiry_service_tests.Services
     {
         private Mock<IVerintServiceGateway> _mockVerintServiceGateway = new Mock<IVerintServiceGateway>();
         private Mock<IMailingServiceGateway> _mockMailingServiceGateway = new Mock<IMailingServiceGateway>();
+        private Mock<IOptions<VerintConfiguration>> _mockIOptionsConfig = new Mock<IOptions<VerintConfiguration>>();
         private LibraryVolunteeringEnquiryService _service;
 
         LibraryVolunteeringEnquiry _libraryVolunteeringEnquiryData = new LibraryVolunteeringEnquiry
@@ -40,7 +43,18 @@ namespace library_volunteering_enquiry_service_tests.Services
 
         public LibraryVolunteeringEnquiryServiceTests()
         {
-            _service = new LibraryVolunteeringEnquiryService(_mockVerintServiceGateway.Object, _mockMailingServiceGateway.Object);
+            _mockIOptionsConfig
+                .SetupGet(_ => _.Value)
+                .Returns(new VerintConfiguration
+                {
+                    EventCode = 0,
+                    Classification = "test classification"
+                });
+
+            _service = new LibraryVolunteeringEnquiryService(
+                _mockVerintServiceGateway.Object,
+                _mockMailingServiceGateway.Object,
+                _mockIOptionsConfig.Object);
         }
 
         [Fact]

@@ -8,7 +8,7 @@ namespace library_volunteering_enquiry_service.Extensions
     [ExcludeFromCodeCoverage]
     public static class LibraryVolunteeringEnquiryExtensions
     {
-        public static Case MapToCase(this LibraryVolunteeringEnquiry model)
+        public static Case MapToCase(this LibraryVolunteeringEnquiry model, int eventCode, string classification)
         {
             var description = new DescriptionBuilder()
                 .Add("Selected Interests: ", model.InterestList, ", ")
@@ -20,7 +20,8 @@ namespace library_volunteering_enquiry_service.Extensions
 
             return new Case
             {
-                EventCode = 4000031,
+                EventCode = eventCode,
+                Classification = classification,
                 EventTitle = "Volunteering",
                 Description = description,
                 AssociatedWithBehaviour = AssociatedWithBehaviourEnum.Individual,

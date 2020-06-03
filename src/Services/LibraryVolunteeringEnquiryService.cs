@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using library_volunteering_enquiry_service.Config;
 using library_volunteering_enquiry_service.Extensions;
 using library_volunteering_enquiry_service.Models;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using StockportGovUK.NetStandard.Gateways.MailingServiceGateway;
 using StockportGovUK.NetStandard.Gateways.VerintServiceGateway;
@@ -14,15 +16,23 @@ namespace library_volunteering_enquiry_service.Services
     {
         private readonly IVerintServiceGateway _verintServiceGateway;
         private readonly IMailingServiceGateway _mailingServiceGateway;
+        private readonly VerintConfiguration _verintConfiguration;
 
-        public LibraryVolunteeringEnquiryService(IVerintServiceGateway verintServiceGateway, IMailingServiceGateway mailingServiceGateway)
+        public LibraryVolunteeringEnquiryService(
+            IVerintServiceGateway verintServiceGateway,
+            IMailingServiceGateway mailingServiceGateway,
+            IOptions<VerintConfiguration> verintConfiguration)
         {
             _verintServiceGateway = verintServiceGateway;
             _mailingServiceGateway = mailingServiceGateway;
+            _verintConfiguration = verintConfiguration.Value;
         }
+
         public async Task<string> CreateCase(LibraryVolunteeringEnquiry enquiry)
         {
-            var response = await _verintServiceGateway.CreateCase(enquiry.MapToCase());
+            var response = await _verintServiceGateway.CreateCase(enquiry.MapToCase(
+                _verintConfiguration.EventCode,
+                _verintConfiguration.Classification));
 
             if (!response.IsSuccessStatusCode)
                 throw new Exception("LibraryVolunteeringEnquiryService.CreateCase: VerintServiceGateway status code indicated the case was not created.");
