@@ -5,15 +5,21 @@ using Moq;
 using library_volunteering_enquiry_service.Models;
 using library_volunteering_enquiry_service.Services;
 using StockportGovUK.NetStandard.Gateways.Response;
+using StockportGovUK.NetStandard.Gateways.MailingServiceGateway;
 using StockportGovUK.NetStandard.Gateways.VerintServiceGateway;
 using StockportGovUK.NetStandard.Models.Verint;
 using Xunit;
+using StockportGovUK.NetStandard.Models.Mail;
+using library_volunteering_enquiry_service.Config;
+using Microsoft.Extensions.Options;
 
 namespace library_volunteering_enquiry_service_tests.Services
 {
     public class LibraryVolunteeringEnquiryServiceTests
     {
         private Mock<IVerintServiceGateway> _mockVerintServiceGateway = new Mock<IVerintServiceGateway>();
+        private Mock<IMailingServiceGateway> _mockMailingServiceGateway = new Mock<IMailingServiceGateway>();
+        private Mock<IOptions<VerintConfiguration>> _mockIOptionsConfig = new Mock<IOptions<VerintConfiguration>>();
         private LibraryVolunteeringEnquiryService _service;
 
         LibraryVolunteeringEnquiry _libraryVolunteeringEnquiryData = new LibraryVolunteeringEnquiry
@@ -37,18 +43,18 @@ namespace library_volunteering_enquiry_service_tests.Services
 
         public LibraryVolunteeringEnquiryServiceTests()
         {
-            _service = new LibraryVolunteeringEnquiryService(_mockVerintServiceGateway.Object);
-        }
+            _mockIOptionsConfig
+                .SetupGet(_ => _.Value)
+                .Returns(new VerintConfiguration
+                {
+                    EventCode = 0,
+                    Classification = "test classification"
+                });
 
-        [Fact]
-        public async Task CreateCase_ShouldReThrowCreateCaseException_CaughtFromVerintGateway()
-        {
-            _mockVerintServiceGateway
-                .Setup(_ => _.CreateCase(It.IsAny<Case>()))
-                .Throws(new Exception("TestException"));
-
-            var result = await Assert.ThrowsAsync<Exception>(() => _service.CreateCase(_libraryVolunteeringEnquiryData));
-            Assert.Contains($"CRMService CreateLibraryVolunteeringEnquiry an exception has occured while creating the case in verint service", result.Message);
+            _service = new LibraryVolunteeringEnquiryService(
+                _mockVerintServiceGateway.Object,
+                _mockMailingServiceGateway.Object,
+                _mockIOptionsConfig.Object);
         }
 
         [Fact]
@@ -68,7 +74,6 @@ namespace library_volunteering_enquiry_service_tests.Services
         [Fact]
         public async Task CreateCase_ShouldReturnResponseContent()
         {
-            
             _mockVerintServiceGateway
                 .Setup(_ => _.CreateCase(It.IsAny<Case>()))
                 .ReturnsAsync(new HttpResponse<string>
@@ -141,6 +146,44 @@ namespace library_volunteering_enquiry_service_tests.Services
             Assert.Contains(numberOfHours.ToString(), crmCaseParameter.Description);
             Assert.Contains(notAvailableList[0], crmCaseParameter.Description);
             Assert.Contains(additionalInfo, crmCaseParameter.Description);            
+        }
+
+        [Fact]
+        public async Task CreateCase_ShouldCallMailingService()
+        {
+            _mockVerintServiceGateway
+                .Setup(_ => _.CreateCase(It.IsAny<Case>()))
+                .ReturnsAsync(new HttpResponse<string>
+                {
+                    IsSuccessStatusCode = true,
+                    ResponseContent = "test"
+                });
+
+            await _service.CreateCase(_libraryVolunteeringEnquiryData);
+
+            _mockMailingServiceGateway
+                .Verify(_ => _.Send(It.IsAny<Mail>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateCase_ShouldNotCallMailingService()
+        {
+            var enquiryData = _libraryVolunteeringEnquiryData;
+
+            enquiryData.Email = string.Empty;
+
+            _mockVerintServiceGateway
+                .Setup(_ => _.CreateCase(It.IsAny<Case>()))
+                .ReturnsAsync(new HttpResponse<string>
+                {
+                    IsSuccessStatusCode = true,
+                    ResponseContent = "test"
+                });
+
+            await _service.CreateCase(_libraryVolunteeringEnquiryData);
+
+            _mockMailingServiceGateway
+                .VerifyNoOtherCalls();
         }
     }
 }

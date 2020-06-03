@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using library_volunteering_enquiry_service.Utils.HealthChecks;
 using library_volunteering_enquiry_service.Utils.ServiceCollectionExtensions;
-using library_volunteering_enquiry_service.Utils.StorageProvider;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using StockportGovUK.AspNetCore.Middleware;
 using StockportGovUK.AspNetCore.Availability;
 using StockportGovUK.NetStandard.Gateways;
+using StockportGovUK.AspNetCore.Availability.Middleware;
 
 namespace library_volunteering_enquiry_service
 {
@@ -26,11 +26,11 @@ namespace library_volunteering_enquiry_service
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddStorageProvider(Configuration);
             services.AddResilientHttpClients<IGateway, Gateway>(Configuration);
             services.RegisterServices();
             services.AddAvailability();
             services.AddSwagger();
+            services.AddConfiguration(Configuration);
             services.AddHealthChecks()
                     .AddCheck<TestHealthCheck>("TestHealthCheck");
         }
@@ -50,6 +50,7 @@ namespace library_volunteering_enquiry_service
             app.UseRouting();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
 
+            app.UseMiddleware<Availability>();
             app.UseMiddleware<ApiExceptionHandling>();
             
             app.UseHealthChecks("/healthcheck", HealthCheckConfig.Options);

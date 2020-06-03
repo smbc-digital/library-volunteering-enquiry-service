@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using library_volunteering_enquiry_service.Config;
 using library_volunteering_enquiry_service.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
@@ -11,6 +13,7 @@ namespace library_volunteering_enquiry_service.Utils.ServiceCollectionExtensions
         {
             services.AddTransient<ILibraryVolunteeringEnquiryService, LibraryVolunteeringEnquiryService>();
         }
+
         public static void AddSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(c =>
@@ -35,6 +38,11 @@ namespace library_volunteering_enquiry_service.Utils.ServiceCollectionExtensions
                     }
                 });
             });
+        }
+
+        public static void AddConfiguration(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<VerintConfiguration>(settings => configuration.GetSection("VerintConfiguration").Bind(settings));
         }
     }
 }

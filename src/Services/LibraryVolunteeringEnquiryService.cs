@@ -1,136 +1,56 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
+using library_volunteering_enquiry_service.Config;
+using library_volunteering_enquiry_service.Extensions;
 using library_volunteering_enquiry_service.Models;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using StockportGovUK.NetStandard.Gateways.MailingServiceGateway;
 using StockportGovUK.NetStandard.Gateways.VerintServiceGateway;
-using StockportGovUK.NetStandard.Models.Verint;
+using StockportGovUK.NetStandard.Models.Enums;
+using StockportGovUK.NetStandard.Models.Mail;
 
 namespace library_volunteering_enquiry_service.Services
 {
     public class LibraryVolunteeringEnquiryService : ILibraryVolunteeringEnquiryService
     {
-        private readonly IVerintServiceGateway _VerintServiceGateway;
+        private readonly IVerintServiceGateway _verintServiceGateway;
+        private readonly IMailingServiceGateway _mailingServiceGateway;
+        private readonly VerintConfiguration _verintConfiguration;
 
-        public LibraryVolunteeringEnquiryService(IVerintServiceGateway verintServiceGateway)
+        public LibraryVolunteeringEnquiryService(
+            IVerintServiceGateway verintServiceGateway,
+            IMailingServiceGateway mailingServiceGateway,
+            IOptions<VerintConfiguration> verintConfiguration)
         {
-            _VerintServiceGateway = verintServiceGateway;
-        }
-        public async Task<string> CreateCase(LibraryVolunteeringEnquiry libraryVolunteeringEnquiry)
-        {
-            var crmCase = CreateCrmObject(libraryVolunteeringEnquiry);
-
-            try
-            {
-                var response = await _VerintServiceGateway.CreateCase(crmCase);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception("Status code not successful");
-                }
-
-                return response.ResponseContent;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"CRMService CreateLibraryVolunteeringEnquiry an exception has occured while creating the case in verint service", ex);
-            }
+            _verintServiceGateway = verintServiceGateway;
+            _mailingServiceGateway = mailingServiceGateway;
+            _verintConfiguration = verintConfiguration.Value;
         }
 
-        private Case CreateCrmObject(LibraryVolunteeringEnquiry libraryVolunteeringEnquiry)
+        public async Task<string> CreateCase(LibraryVolunteeringEnquiry enquiry)
         {
-            var crmCase = new Case
-            {
-                EventCode = 4000031,
-                EventTitle = "Volunteering",
-                Description = GenerateDescription(libraryVolunteeringEnquiry),
-                AssociatedWithBehaviour = AssociatedWithBehaviourEnum.Individual
-            };
+            var response = await _verintServiceGateway.CreateCase(enquiry.MapToCase(
+                _verintConfiguration.EventCode,
+                _verintConfiguration.Classification));
 
-            if (!string.IsNullOrEmpty(libraryVolunteeringEnquiry.FirstName) && !string.IsNullOrEmpty(libraryVolunteeringEnquiry.LastName))
-            {
-                crmCase.Customer = new Customer
-                {
-                    Forename = libraryVolunteeringEnquiry.FirstName,
-                    Surname = libraryVolunteeringEnquiry.LastName
-                };
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("LibraryVolunteeringEnquiryService.CreateCase: VerintServiceGateway status code indicated the case was not created.");
 
-                if (!string.IsNullOrEmpty(libraryVolunteeringEnquiry.Email))
+            if(!string.IsNullOrEmpty(enquiry.Email))
+                _ = _mailingServiceGateway.Send(new Mail
                 {
-                    crmCase.Customer.Email = libraryVolunteeringEnquiry.Email;
-                }
-
-                if (!string.IsNullOrEmpty(libraryVolunteeringEnquiry.Phone))
-                {
-                    crmCase.Customer.Telephone = libraryVolunteeringEnquiry.Phone;
-                }
-
-                if (string.IsNullOrEmpty(libraryVolunteeringEnquiry.CustomersAddress.PlaceRef))
-                {
-                    crmCase.Customer.Address = new Address
+                    Template = EMailTemplate.LibraryVolunteeringEnquiry,
+                    Payload = JsonConvert.SerializeObject(new
                     {
-                        AddressLine1 = libraryVolunteeringEnquiry.CustomersAddress.AddressLine1,
-                        AddressLine2 = libraryVolunteeringEnquiry.CustomersAddress.AddressLine2,
-                        AddressLine3 = libraryVolunteeringEnquiry.CustomersAddress.Town,
-                        Postcode = libraryVolunteeringEnquiry.CustomersAddress.Postcode,
-                    };
-                }
-                else
-                {
-                    crmCase.Customer.Address = new Address
-                    {
-                        Reference = libraryVolunteeringEnquiry.CustomersAddress.PlaceRef,
-                        UPRN = libraryVolunteeringEnquiry.CustomersAddress.PlaceRef
-                    };
-                }
-            }
-            return crmCase;
-        }
+                        enquiry.FirstName,
+                        Reference = response.ResponseContent,
+                        RecipientAddress = enquiry.Email,
+                        Subject = "Library Volunteering Enquiry"
+                    })
+                });
 
-        private string GenerateDescription(LibraryVolunteeringEnquiry libraryVolunteeringEnquiry)
-        {
-            StringBuilder description = new StringBuilder();
-
-            if (libraryVolunteeringEnquiry.InterestList.Count > 0)
-            {
-                description.Append("Selected Interests: ");
-                foreach (var interest in libraryVolunteeringEnquiry.InterestList)
-                {
-                    description.Append($"{interest}, ");
-                }
-                description.Append("\n");
-            }
-
-            if (libraryVolunteeringEnquiry.PreferredLocationList.Count > 0)
-            {
-                description.Append("Selected Locations: ");
-                foreach (var location in libraryVolunteeringEnquiry.PreferredLocationList)
-                {
-                    description.Append($"{location}, ");
-                }
-                description.Append("\n");
-            }
-
-            if (libraryVolunteeringEnquiry.NumberOfHours > 0)
-            {
-                description.Append($"Hours: {libraryVolunteeringEnquiry.NumberOfHours}\n");
-            }
-
-            if (libraryVolunteeringEnquiry.NotAvailableList.Count > 0)
-            {
-                description.Append("Days can't work: ");
-                foreach (var notAvailable in libraryVolunteeringEnquiry.NotAvailableList)
-                {
-                    description.Append($"{notAvailable}, ");
-                }
-                description.Append("\n");
-            }
-
-            if (!string.IsNullOrEmpty(libraryVolunteeringEnquiry.AdditionalInfo))
-            {
-                description.Append($"Extra Information: {libraryVolunteeringEnquiry.AdditionalInfo}");
-            }
-
-            return description.ToString();
+            return response.ResponseContent;
         }
     }
 }

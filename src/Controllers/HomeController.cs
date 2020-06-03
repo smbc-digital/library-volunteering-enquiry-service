@@ -23,11 +23,7 @@ namespace library_volunteering_enquiry_service.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] LibraryVolunteeringEnquiry libraryVolunteeringEnquiry)
-        {
-            string result = await _libraryVolunteeringEnquiryService.CreateCase(libraryVolunteeringEnquiry);
-
-            return Ok(result);
-        }
+        public async Task<IActionResult> Post([FromBody] LibraryVolunteeringEnquiry libraryVolunteeringEnquiry) =>
+            Ok(await _libraryVolunteeringEnquiryService.CreateCase(libraryVolunteeringEnquiry));
     }
 }
